@@ -63,18 +63,10 @@ platforms:
       name: "华尔街见闻"
     - id: "thepaper"
       name: "澎湃新闻"
-    - id: "bilibili-hot-search"
-      name: "bilibili 热搜"
     - id: "cls-hot"
       name: "财联社热门"
-    - id: "ifeng"
-      name: "凤凰网"
-    - id: "tieba"
-      name: "贴吧"
     - id: "weibo"
       name: "微博"
-    - id: "douyin"
-      name: "抖音"
     - id: "zhihu"
       name: "知乎"
 
@@ -113,35 +105,32 @@ rss:
   # - 正整数：覆盖全局设置，只推送此天数内的文章
   # - 0：禁用此频道的新鲜度过滤，推送所有文章
   feeds:
-    - id: "hacker-news"
-      name: "Hacker News"
-      url: "https://hnrss.org/frontpage"
-
-    - id: "ruanyifeng"
-      name: "阮一峰的网络日志"
-      url: "http://www.ruanyifeng.com/blog/atom.xml"
-      enabled: false                  # 禁用
-      # max_age_days: 3               # 示例：推送 3 天内的文章（更新较慢的博客）
-     
-    - id: "yahoo-finance"
-      name: "雅虎财经"
-      url: "https://finance.yahoo.com/news/rssindex"
+    # ━━━ 全球财经 ━━━
     - id: "reuters-world"
-      name: "路透社世界新闻"
+      name: "路透社"
       url: "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best"
 
-    - id: "bbc-world"
-      name: "BBC世界新闻"
-      url: "https://feeds.bbci.co.uk/news/world/rss.xml"
+    - id: "bloomberg-markets"
+      name: "彭博市场"
+      url: "https://feeds.bloomberg.com/markets/news.rss"
 
-    - id: "cnbc-world"
-      name: "CNBC全球财经"
-      url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362"
+    - id: "wsj-world"
+      name: "华尔街日报"
+      url: "https://feeds.a]content.com/rss/RSSWorldNews.xml"
 
     - id: "ft-world"
       name: "金融时报FT"
       url: "https://www.ft.com/rss/home"
 
+    - id: "cnbc-world"
+      name: "CNBC全球财经"
+      url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362"
+
+    - id: "yahoo-finance"
+      name: "雅虎财经"
+      url: "https://finance.yahoo.com/news/rssindex"
+
+    # ━━━ 贵金属/加密货币 ━━━
     - id: "kitco-gold"
       name: "Kitco黄金贵金属"
       url: "https://www.kitco.com/rss/gold.xml"
@@ -150,15 +139,44 @@ rss:
       name: "CoinDesk加密货币"
       url: "https://www.coindesk.com/arc/outboundfeeds/rss/"
 
+    # ━━━ 全球新闻 ━━━
+    - id: "bbc-world"
+      name: "BBC世界新闻"
+      url: "https://feeds.bbci.co.uk/news/world/rss.xml"
 
-    # 自定义源示例
-    # - id: "custom-feed"
-    #   name: "自定义源"
-    #   url: "https://example.com/feed.xml"
-    #   enabled: false
-    #   max_age_days: 0               # 示例：禁用过滤，推送所有文章
+    - id: "nytimes-world"
+      name: "纽约时报"
+      url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
 
+    - id: "economist"
+      name: "经济学人"
+      url: "https://www.economist.com/rss"
 
+    # ━━━ 科技 ━━━
+    - id: "techcrunch"
+      name: "TechCrunch"
+      url: "https://techcrunch.com/feed/"
+
+    - id: "theverge"
+      name: "The Verge"
+      url: "https://www.theverge.com/rss/index.xml"
+
+    - id: "hacker-news"
+      name: "Hacker News"
+      url: "https://hnrss.org/frontpage"
+
+    # ━━━ 中国财经/科技 ━━━
+    - id: "36kr"
+      name: "36氪"
+      url: "https://36kr.com/feed"
+
+    - id: "huxiu"
+      name: "虎嗅"
+      url: "https://www.huxiu.com/rss/0.xml"
+
+    - id: "yicai"
+      name: "第一财经"
+      url: "https://www.yicai.com/rss/feed.xml"
 # ===============================================================
 # 4. 报告模式
 #
