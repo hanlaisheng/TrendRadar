@@ -126,6 +126,30 @@ rss:
     - id: "yahoo-finance"
       name: "雅虎财经"
       url: "https://finance.yahoo.com/news/rssindex"
+    - id: "reuters-world"
+      name: "路透社世界新闻"
+      url: "https://www.reutersagency.com/feed/?taxonomy=best-sectors&post_type=best"
+
+    - id: "bbc-world"
+      name: "BBC世界新闻"
+      url: "https://feeds.bbci.co.uk/news/world/rss.xml"
+
+    - id: "cnbc-world"
+      name: "CNBC全球财经"
+      url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362"
+
+    - id: "ft-world"
+      name: "金融时报FT"
+      url: "https://www.ft.com/rss/home"
+
+    - id: "kitco-gold"
+      name: "Kitco黄金贵金属"
+      url: "https://www.kitco.com/rss/gold.xml"
+
+    - id: "coindesk"
+      name: "CoinDesk加密货币"
+      url: "https://www.coindesk.com/arc/outboundfeeds/rss/"
+
 
     # 自定义源示例
     # - id: "custom-feed"
