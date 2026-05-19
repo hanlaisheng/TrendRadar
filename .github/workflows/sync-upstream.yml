@@ -1,0 +1,68 @@
+name: Sync Upstream
+
+# ✅ 自动同步上游仓库更新
+# ✅ 定期检查 sansan0/TrendRadar 是否有新提交
+# ✅ 如果有更新，自动合并到 hanlaisheng/TrendRadar
+
+on:
+  schedule:
+    # 每天 UTC 02:00 执行（北京时间 10:00）
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # 保留手动触发能力
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ github.token }}
+      
+      - name: Sync upstream changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # 添加上游仓库
+          git remote add upstream https://github.com/sansan0/TrendRadar.git || true
+          
+          # 获取上游更新
+          git fetch upstream
+          
+          # 检查是否有新提交
+          LOCAL=$(git rev-parse master)
+          UPSTREAM=$(git rev-parse upstream/master)
+          BASE=$(git merge-base master upstream/master)
+          
+          echo "Local: $LOCAL"
+          echo "Upstream: $UPSTREAM"
+          echo "Base: $BASE"
+          
+          if [ "$UPSTREAM" = "$BASE" ]; then
+            echo "✅ 已是最新，无需更新"
+            echo "UP_TO_DATE=true" >> $GITHUB_ENV
+          elif [ "$LOCAL" = "$BASE" ]; then
+            echo "📥 有新更新，正在合并..."
+            git merge upstream/master --no-edit
+            git push origin master
+            echo "✅ 合并成功"
+            echo "UP_TO_DATE=false" >> $GITHUB_ENV
+          else
+            echo "⚠️ 分支已分叉，需要手动处理"
+            echo "UP_TO_DATE=diverged" >> $GITHUB_ENV
+          fi
+      
+      - name: Report status
+        if: env.UP_TO_DATE == 'false'
+        run: |
+          echo "## 📥 TrendRadar 上游更新已同步" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "上游仓库 sansan0/TrendRadar 有新提交，已自动合并到 master。" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "请检查是否有配置冲突需要手动处理。" >> $GITHUB_STEP_SUMMARY
