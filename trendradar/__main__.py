@@ -978,6 +978,40 @@ class NewsAnalyzer:
                         current_results=current_results, schedule=schedule
                     )
 
+            # AI 分析失败重试：如果启用了 require_success_before_push，失败时自动重试
+            ai_config_check = cfg.get("AI_ANALYSIS", {})
+            if (
+                ai_config_check.get("ENABLED", False)
+                and ai_config_check.get("REQUIRE_SUCCESS_BEFORE_PUSH", False)
+                and ai_result is not None
+                and not ai_result.success
+                and not ai_result.skipped
+            ):
+                max_retries = ai_config_check.get("AI_RETRY_COUNT", 3)
+                retry_interval = ai_config_check.get("AI_RETRY_INTERVAL", 30)
+                print(f"[AI] 分析失败，将在 {retry_interval}s 后重试（最多 {max_retries} 次）...")
+                for retry_idx in range(max_retries):
+                    import time
+                    time.sleep(retry_interval)
+                    print(f"[AI] 第 {retry_idx + 1}/{max_retries} 次重试...")
+                    ai_result = self._run_ai_analysis(
+                        stats, rss_items, mode, report_type, id_to_name,
+                        current_results=current_results, schedule=schedule
+                    )
+                    if ai_result and ai_result.success:
+                        print(f"[AI] 重试成功!")
+                        break
+                    elif ai_result and ai_result.skipped:
+                        print(f"[AI] 分析被跳过，停止重试")
+                        break
+                    else:
+                        err = ai_result.error if ai_result else "未知错误"
+                        print(f"[AI] 第 {retry_idx + 1} 次重试失败: {err}")
+
+                if ai_result is None or (not ai_result.success and not ai_result.skipped):
+                    print("[AI] 多次重试仍失败，跳过本次推送")
+                    return False
+
             # 准备报告数据
             report_data = self.ctx.prepare_report(stats, failed_ids, new_titles, id_to_name, mode, frequency_file=self.frequency_file)
 
