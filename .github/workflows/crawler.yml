@@ -46,15 +46,11 @@ concurrency:
 permissions:
   contents: read
   actions: write
-  # 工件保留天数（自动清理旧的运行产物）
-
-env:
-  ACTIONS_RUNS_RETENTION_DAYS: 3
 
 jobs:
   crawl:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repository
