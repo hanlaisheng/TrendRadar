@@ -105,9 +105,71 @@ rss:
   # - 正整数：覆盖全局设置，只推送此天数内的文章
   # - 0：禁用此频道的新鲜度过滤，推送所有文章
   feeds:
+    # ━━━ 全球财经 ━━━
+    - id: "bloomberg-markets"
+      name: "彭博市场"
+      url: "https://feeds.bloomberg.com/markets/news.rss"
+
+    - id: "ft-world"
+      name: "金融时报FT"
+      url: "https://www.ft.com/rss/home"
+
+    - id: "cnbc-world"
+      name: "CNBC全球财经"
+      url: "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362"
+
+    - id: "yahoo-finance"
+      name: "雅虎财经"
+      url: "https://finance.yahoo.com/news/rssindex"
+
+    # ━━━ 贵金属/加密货币 ━━━
+    - id: "goldprice"
+      name: "GoldPrice黄金"
+      url: "https://goldprice.org/feed"
+
+    - id: "coindesk"
+      name: "CoinDesk加密货币"
+      url: "https://www.coindesk.com/arc/outboundfeeds/rss/"
+
+    # ━━━ 全球新闻 ━━━
+    - id: "bbc-world"
+      name: "BBC世界新闻"
+      url: "https://feeds.bbci.co.uk/news/world/rss.xml"
+
+    - id: "nytimes-world"
+      name: "纽约时报"
+      url: "https://rss.nytimes.com/services/xml/rss/nyt/World.xml"
+
+    - id: "guardian-world"
+      name: "卫报世界新闻"
+      url: "https://www.theguardian.com/world/rss"
+
+    # ━━━ 科技 ━━━
+    - id: "techcrunch"
+      name: "TechCrunch"
+      url: "https://techcrunch.com/feed/"
+
+    - id: "theverge"
+      name: "The Verge"
+      url: "https://www.theverge.com/rss/index.xml"
+
     - id: "hacker-news"
       name: "Hacker News"
       url: "https://hnrss.org/frontpage"
+
+    # ━━━ 中国 ━━━
+    - id: "36kr"
+      name: "36氪"
+      url: "https://36kr.com/feed"
+
+    - id: "huxiu"
+      name: "虎嗅"
+      url: "https://www.huxiu.com/rss/0.xml"
+
+    # ━━━ 黄金贵金属（替代 Kitco）━━━
+    - id: "investing-gold"
+      name: "Investing黄金"
+      url: "https://www.investing.com/rss/news_285.rss"
 
     - id: "ruanyifeng"
       name: "阮一峰的网络日志"
