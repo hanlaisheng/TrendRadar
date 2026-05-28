@@ -123,7 +123,7 @@ rss:
       url: "https://finance.yahoo.com/news/rssindex"
 
     # ━━━ 贵金属/加密货币 ━━━
-- id: "coindesk"
+    - id: "coindesk"
       name: "CoinDesk加密货币"
       url: "https://www.coindesk.com/arc/outboundfeeds/rss/"
 
