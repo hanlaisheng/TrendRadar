@@ -123,11 +123,7 @@ rss:
       url: "https://finance.yahoo.com/news/rssindex"
 
     # ━━━ 贵金属/加密货币 ━━━
-    - id: "goldprice"
-      name: "GoldPrice黄金"
-      url: "https://goldprice.org/feed"
-
-    - id: "coindesk"
+- id: "coindesk"
       name: "CoinDesk加密货币"
       url: "https://www.coindesk.com/arc/outboundfeeds/rss/"
 
