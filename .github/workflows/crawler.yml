@@ -111,6 +111,14 @@ jobs:
             exit 1
           fi
 
+      - name: Restore data cache
+        uses: actions/cache@v4
+        with:
+          path: output
+          key: trendradar-data-${{ github.run_id }}
+          restore-keys: |
+            trendradar-data-
+
       - name: Run crawler
         if: success()
         env:
@@ -146,3 +154,10 @@ jobs:
           S3_REGION: ${{ secrets.S3_REGION }}
           GITHUB_ACTIONS: true
         run: uv run python -m trendradar
+
+      - name: Save data cache
+        if: always()
+        uses: actions/cache@v4
+        with:
+          path: output
+          key: trendradar-data-${{ github.run_id }}

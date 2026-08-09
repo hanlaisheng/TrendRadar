@@ -459,18 +459,12 @@ custom:
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   periods:
 
-    deep_quiet:
-      name: "深夜静默"
-      start: "23:00"
-      end: "06:00"                 # 23:00 → 次日 06:00（跨日时间段）
-      collect: true                # 夜间继续采集数据
-      analyze: true                # 夜间可以跑 AI 分析（反正不推送）
-      push: false                  # 深夜不推送，避免打扰
-
     morning_briefing:
       name: "早间快报"
       start: "06:00"
       end: "08:00"                 # 窗口 06:00-08:00，cron 在 06:30 触发
+      analyze: true                # 早间 AI 分析
+      ai_mode: "current"           # 分析当前榜单
       push: true                   # 推送当前热点
       report_mode: "current"       # 当前在榜的新闻
       # once 继承 default（push: true）→ 窗口内只推一次
@@ -479,6 +473,8 @@ custom:
       name: "午间热点"
       start: "12:00"
       end: "14:00"                 # 窗口 12:00-14:00，cron 在 12:10 触发
+      analyze: true                # 午间 AI 分析
+      ai_mode: "current"           # 分析当前榜单
       push: true                   # 推送当前热点
       report_mode: "current"       # 当前在榜的新闻
       # once 继承 default（push: true）→ 窗口内只推一次
@@ -503,7 +499,7 @@ custom:
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   day_plans:
     all_day:                        # 每天统一计划
-      periods: ["deep_quiet", "morning_briefing", "noon_update", "evening_summary"]
+      periods: ["morning_briefing", "noon_update", "evening_summary"]
 
 
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
