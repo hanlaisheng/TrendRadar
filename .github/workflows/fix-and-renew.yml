@@ -1,0 +1,49 @@
+name: Fix and Renew
+
+on:
+  push:
+    paths:
+      - ".github/workflows/fix-and-renew.yml"
+  workflow_dispatch:
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Enable all disabled workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "=== Enabling all workflows ==="
+          for wf in crawler.yml auto-checkin.yml sync-upstream.yml; do
+            echo "Enabling $wf..."
+            gh api -X PUT "repos/${{ github.repository }}/actions/workflows/$wf/enable" 2>&1 || true
+          done
+
+      - name: Delete all workflow runs (reset trial)
+        uses: Mattraks/delete-workflow-runs@v2
+        with:
+          token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          retain_days: 0
+          keep_minimum_runs: 0
+          delete_workflow_by_state_pattern: "ALL"
+          delete_run_by_conclusion_pattern: "ALL"
+
+      - name: Verify workflow status
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "=== Workflow Status ==="
+          gh api "repos/${{ github.repository }}/actions/workflows" --jq '.workflows[] | "\(.name): \(.state)"'
+
+      - name: Trigger Get Hot News
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "=== Triggering Get Hot News ==="
+          gh workflow run crawler.yml --repo ${{ github.repository }}
+          echo "Done! Get Hot News will run on next schedule (hour:33)."
