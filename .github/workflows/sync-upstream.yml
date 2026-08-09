@@ -3,6 +3,7 @@ name: Sync Upstream
 # ✅ 自动同步上游仓库更新
 # ✅ 定期检查 sansan0/TrendRadar 是否有新提交
 # ✅ 如果有更新，自动合并到 hanlaisheng/TrendRadar
+# ✅ 分叉时也能自动合并：代码用上游版本，配置文件保留 fork 定制
 
 on:
   schedule:
@@ -15,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,86 +24,126 @@ jobs:
           ref: master
           fetch-depth: 0
           token: ${{ github.token }}
-      
+
       - name: Sync upstream changes
         run: |
-          # 不在 -e 模式下运行，避免单个命令失败导致整个脚本退出
           set +e
-          
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          
+
           echo "=== TrendRadar Sync Upstream ==="
           echo "时间: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
           echo ""
-          
+
           # 添加上游仓库
-          echo "[1/5] 添加上游仓库 remote..."
+          echo "[1/6] 添加上游仓库 remote..."
           git remote add upstream https://github.com/sansan0/TrendRadar.git 2>/dev/null || true
-          
+
           # 获取上游更新
-          echo "[2/5] 获取上游更新..."
+          echo "[2/6] 获取上游更新..."
           git fetch upstream
           FETCH_EXIT=$?
           if [ $FETCH_EXIT -ne 0 ]; then
             echo "❌ git fetch upstream 失败 (exit code: $FETCH_EXIT)"
-            echo "UP_TO_DATE=fetch_failed" >> $GITHUB_ENV
             exit 1
           fi
           echo "✅ 上游 fetch 成功"
-          
+
           # 检查是否有新提交
-          echo "[3/5] 检查分支状态..."
+          echo "[3/6] 检查分支状态..."
           LOCAL=$(git rev-parse master 2>&1)
           UPSTREAM=$(git rev-parse upstream/master 2>&1)
           BASE=$(git merge-base master upstream/master 2>&1)
-          
+
           echo "  Local:  $LOCAL"
           echo "  Upstream: $UPSTREAM"
           echo "  Base:  $BASE"
           echo ""
-          
+
           if [ "$UPSTREAM" = "$BASE" ]; then
             echo "✅ 已是最新，无需更新"
-            echo "UP_TO_DATE=true" >> $GITHUB_ENV
             echo ""
             echo "=== 同步完成：无需更新 ==="
-          
-          elif [ "$LOCAL" = "$BASE" ]; then
-            echo "📥 有新更新，正在合并..."
-            echo "[4/5] 执行 git merge..."
-            git merge upstream/master --no-edit
-            MERGE_EXIT=$?
-            if [ $MERGE_EXIT -ne 0 ]; then
-              echo "❌ git merge 失败 (exit code: $MERGE_EXIT)"
-              echo "可能有合并冲突，需要手动处理"
-              echo "UP_TO_DATE=merge_conflict" >> $GITHUB_ENV
+            exit 0
+          fi
+
+          # 无论分叉与否，都尝试合并
+          echo "📥 有新更新，正在合并..."
+          echo "[4/6] 执行 git merge --allow-unrelated-histories..."
+
+          # 先尝试普通 merge
+          git merge upstream/master --no-edit --allow-unrelated-histories
+          MERGE_EXIT=$?
+
+          if [ $MERGE_EXIT -ne 0 ]; then
+            echo "⚠️  有合并冲突，自动解决中..."
+            echo ""
+
+            # 策略：代码文件用上游版本(theirs)，配置/workflow文件保留我们的(ours)
+            # 这些是我们要保留自定义的文件
+            OURS_FILES=(
+              "config/config.yaml"
+              "config/ai_interests.txt"
+              ".github/workflows/crawler.yml"
+              ".github/workflows/auto-checkin.yml"
+            )
+
+            # 获取所有冲突文件列表
+            CONFLICTS=$(git diff --name-only --diff-filter=U 2>/dev/null)
+            echo "冲突文件: $CONFLICTS"
+            echo ""
+
+            # 对每个冲突文件进行解决
+            for file in $CONFLICTS; do
+              IS_OURS=false
+              for ours_file in "${OURS_FILES[@]}"; do
+                if [ "$file" = "$ours_file" ]; then
+                  IS_OURS=true
+                  break
+                fi
+              done
+
+              if [ "$IS_OURS" = true ]; then
+                echo "  保留我们的版本(ours): $file"
+                git checkout --ours "$file" 2>/dev/null
+              else
+                echo "  使用上游版本(theirs): $file"
+                git checkout --theirs "$file" 2>/dev/null
+              fi
+              git add "$file" 2>/dev/null
+            done
+
+            echo ""
+            echo "✅ 冲突已解决"
+
+            # 继续完成 merge
+            git commit --no-edit 2>/dev/null
+            COMMIT_EXIT=$?
+            if [ $COMMIT_EXIT -ne 0 ]; then
+              echo "❌ 自动提交 merge commit 失败"
               git merge --abort 2>/dev/null || true
               exit 1
             fi
-            
-            echo "[5/5] 推送到 origin/master..."
-            git push origin master
-            PUSH_EXIT=$?
-            if [ $PUSH_EXIT -ne 0 ]; then
-              echo "❌ git push 失败 (exit code: $PUSH_EXIT)"
-              echo "UP_TO_DATE=push_failed" >> $GITHUB_ENV
-              exit 1
-            fi
-            
-            echo "✅ 合并成功并已推送"
-            echo "UP_TO_DATE=false" >> $GITHUB_ENV
-            echo ""
-            echo "=== 同步完成：已合并上游更新 ==="
-          
-          else
-            echo "⚠️ 分支已分叉（fork 有本地修改，upstream 也有新提交）"
-            echo "  本地 HEAD: $LOCAL"
-            echo "  上游 HEAD: $UPSTREAM"
-            echo "  公共祖先: $BASE"
-            echo ""
-            echo "分叉是正常的（你有自定义配置），跳过自动合并"
-            echo "UP_TO_DATE=diverged" >> $GITHUB_ENV
-            echo ""
-            echo "=== 同步完成：分支分叉，已跳过 ==="
           fi
+
+          echo "✅ 合并成功"
+
+          # 推送
+          echo "[5/6] 推送到 origin/master..."
+          git push origin master
+          PUSH_EXIT=$?
+          if [ $PUSH_EXIT -ne 0 ]; then
+            echo "❌ git push 失败 (exit code: $PUSH_EXIT)"
+            exit 1
+          fi
+
+          echo "✅ 合并成功并已推送"
+          echo ""
+
+          # 验证版本
+          echo "[6/6] 验证版本..."
+          VERSION=$(cat version 2>/dev/null)
+          echo "  当前版本: v${VERSION}"
+          echo ""
+          echo "=== 同步完成：已合并上游更新 ==="
