@@ -59,9 +59,11 @@ platforms:
     - id: "toutiao"
       name: "今日头条"
       expected_domain: "toutiao.com"
+      enabled: false                  # 已禁用：社会民生泛信息源，信噪比低
     - id: "baidu"
       name: "百度热搜"
       expected_domain: "baidu.com"
+      enabled: false                  # 已禁用：搜索驱动型热搜，娱乐泛化内容居多
     - id: "wallstreetcn-hot"
       name: "华尔街见闻"
       expected_domain: "wallstreetcn.com"
@@ -78,6 +80,7 @@ platforms:
     - id: "ifeng"
       name: "凤凰网"
       expected_domain: "ifeng.com"
+      enabled: false                  # 已禁用：综合门户，内容质量参差不齐
     - id: "tieba"
       name: "贴吧"
       expected_domain: "baidu.com"
@@ -93,6 +96,19 @@ platforms:
     - id: "zhihu"
       name: "知乎"
       expected_domain: "zhihu.com"
+    # ── 以下为新增高质量信息源 ──
+    - id: "xueqiu-hotstock"
+      name: "雪球热股"
+      expected_domain: "xueqiu.com"          # 投资者社区，金融/股市视角
+    - id: "36kr-renqi"
+      name: "36氪人气榜"
+      expected_domain: "36kr.com"            # 科技/创业/商业深度
+    - id: "ithome"
+      name: "IT之家"
+      expected_domain: "ithome.com"          # 科技资讯，硬件/软件/AI
+    - id: "solidot"
+      name: "Solidot"
+      expected_domain: "solidot.org"        # 科学/技术奇客新闻，前沿研究
 
 
 
@@ -486,7 +502,7 @@ ai_analysis:
                                     # true = 完整轨迹（如 1(09:30)→2(10:00)），AI 分析更准但多耗 0.5~1 倍 token
                                     # false = 简化格式（排名范围+出现次数），更省 token
 
-  require_success_before_push: true  # AI 分析失败时是否跳过推送
+  require_success_before_push: false  # AI 分析失败时仍推送（代码未实现此开关，推送只看是否有数据）
                                     # true = AI 分析失败时不推送，自动重试后仍失败则跳过
                                     # false = AI 分析失败仍正常推送（默认行为）
 
