@@ -100,9 +100,9 @@ platforms:
     - id: "xueqiu-hotstock"
       name: "雪球热股"
       expected_domain: "xueqiu.com"          # 投资者社区，金融/股市视角
-    - id: "36kr-renqi"
-      name: "36氪人气榜"
-      expected_domain: "36kr.com"            # 科技/创业/商业深度
+    - id: "sspai"
+      name: "少数派"
+      expected_domain: "sspai.com"            # 科技/效率工具/深度评测，中文高质量科技媒体
     - id: "ithome"
       name: "IT之家"
       expected_domain: "ithome.com"          # 科技资讯，硬件/软件/AI
