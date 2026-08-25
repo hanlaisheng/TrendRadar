@@ -258,9 +258,12 @@ def _load_ai_config(config_data: Dict) -> Dict:
 
     return {
         # LiteLLM 核心配置
-        "MODEL": _get_env_str("AI_MODEL") or ai_config.get("model", ""),
+        # 注意：model 和 api_base 以 config.yaml 优先，环境变量仅作兜底；
+        # 这样切换模型只需改 config.yaml，无需修改 GitHub Secrets。
+        # API_KEY 仍以环境变量优先（密钥不应硬编码在配置文件中）。
+        "MODEL": ai_config.get("model", "") or _get_env_str("AI_MODEL"),
         "API_KEY": _get_env_str("AI_API_KEY") or ai_config.get("api_key", ""),
-        "API_BASE": _get_env_str("AI_API_BASE") or ai_config.get("api_base", ""),
+        "API_BASE": ai_config.get("api_base", "") or _get_env_str("AI_API_BASE"),
 
         # 生成参数
         "TIMEOUT": timeout_env if timeout_env is not None else ai_config.get("timeout", 120),
