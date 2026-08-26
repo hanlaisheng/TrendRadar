@@ -139,7 +139,7 @@ report:
   rank_threshold: 5
   max_news_per_keyword: 1
 filter:
-  method: ai
+  method: keyword
   priority_sort_enabled: true
 ai_filter:
   batch_size: 200
@@ -227,7 +227,7 @@ ai_analysis:
   language: Chinese
   prompt_file: ai_analysis_prompt.txt
   mode: follow_report
-  max_news_for_analysis: 150
+  max_news_for_analysis: 50
   include_rss: true
   include_standalone: false
   include_rank_timeline: true
