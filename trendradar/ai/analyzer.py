@@ -262,9 +262,16 @@ class AIAnalyzer:
         news_count = 0
         rss_count = 0
 
-        # 计算总新闻数
+        # 计算总新闻数（兼容两种格式：关键词统计格式 / 原始新闻列表格式）
         hotlist_total = sum(len(s.get("titles", [])) for s in stats) if stats else 0
-        rss_total = sum(len(s.get("titles", [])) for s in rss_stats) if rss_stats else 0
+        if rss_stats:
+            first = rss_stats[0] if rss_stats else {}
+            if "word" in first and "titles" in first:
+                rss_total = sum(len(s.get("titles", [])) for s in rss_stats)
+            else:
+                rss_total = len(rss_stats)
+        else:
+            rss_total = 0
 
         # 热榜内容
         if stats:
@@ -320,41 +327,61 @@ class AIAnalyzer:
                 if news_count >= self.max_news:
                     break
 
-        # RSS 内容（仅在启用时构建）
+        # RSS 内容（仅在启用时构建，兼容关键词统计格式和原始新闻列表格式）
         if self.include_rss and rss_stats:
             remaining = self.max_news - news_count
-            for stat in rss_stats:
-                if rss_count >= remaining:
-                    break
-                word = stat.get("word", "")
-                titles = stat.get("titles", [])
-                if word and titles:
-                    rss_lines.append(f"\n**{word}** ({len(titles)}条)")
-                    for t in titles:
-                        if not isinstance(t, dict):
-                            continue
-                        title = t.get("title", "")
-                        if not title:
-                            continue
+            # 检测格式：关键词统计格式 {word, titles} vs 原始新闻列表格式 {title, ...}
+            first_item = rss_stats[0] if rss_stats else {}
+            is_keyword_format = "word" in first_item and "titles" in first_item
 
-                        # 来源
-                        source = t.get("source_name", t.get("feed_name", ""))
-
-                        # 发布时间
-                        time_display = t.get("time_display", "")
-
-                        # 构建行：[来源] 标题 | 发布时间
-                        if source:
-                            line = f"- [{source}] {title}"
-                        else:
-                            line = f"- {title}"
-                        if time_display:
-                            line += f" | {time_display}"
-                        rss_lines.append(line)
-
-                        rss_count += 1
-                        if rss_count >= remaining:
-                            break
+            if is_keyword_format:
+                # 关键词统计格式
+                for stat in rss_stats:
+                    if rss_count >= remaining:
+                        break
+                    word = stat.get("word", "")
+                    titles = stat.get("titles", [])
+                    if word and titles:
+                        rss_lines.append(f"\n**{word}** ({len(titles)}条)")
+                        for t in titles:
+                            if not isinstance(t, dict):
+                                continue
+                            title = t.get("title", "")
+                            if not title:
+                                continue
+                            source = t.get("source_name", t.get("feed_name", ""))
+                            time_display = t.get("time_display", "")
+                            if source:
+                                line = f"- [{source}] {title}"
+                            else:
+                                line = f"- {title}"
+                            if time_display:
+                                line += f" | {time_display}"
+                            rss_lines.append(line)
+                            rss_count += 1
+                            if rss_count >= remaining:
+                                break
+            else:
+                # 原始新闻列表格式：每项直接是一条新闻 {title, url, source, ...}
+                rss_lines.append(f"\n**RSS资讯** ({len(rss_stats)}条)")
+                for item in rss_stats:
+                    if rss_count >= remaining:
+                        break
+                    if not isinstance(item, dict):
+                        continue
+                    title = item.get("title", "")
+                    if not title:
+                        continue
+                    source = item.get("source_name", item.get("source", item.get("feed_name", "")))
+                    time_display = item.get("time_display", item.get("published", ""))
+                    if source:
+                        line = f"- [{source}] {title}"
+                    else:
+                        line = f"- {title}"
+                    if time_display:
+                        line += f" | {time_display}"
+                    rss_lines.append(line)
+                    rss_count += 1
 
         news_content = "\n".join(news_lines) if news_lines else ""
         rss_content = "\n".join(rss_lines) if rss_lines else ""
