@@ -234,21 +234,23 @@ def split_content_into_batches(
 
     # === 上半部分：数据统计 ===
 
-    # 1. 总新闻
-    rss_new_count = sum(len(stat.get("titles", [])) for stat in (rss_new_items or []))
-    total_new = new_count + rss_new_count
-    total_news_line = f"{b_s}总新闻：{b_e} {total_titles} 条"
-    if total_new > 0:
-        total_news_line += f"（新增 {new_count} + {rss_new_count}）"
-    base_header += f"{total_news_line}\n"
+    # 当热榜总数为0时（纯RSS模式），简化头部，不显示"总新闻"和"热榜"行
+    if hotlist_total > 0 or total_hotlist_count > 0:
+        # 1. 总新闻
+        rss_new_count = sum(len(stat.get("titles", [])) for stat in (rss_new_items or []))
+        total_new = new_count + rss_new_count
+        total_news_line = f"{b_s}总新闻：{b_e} {total_titles} 条"
+        if total_new > 0:
+            total_news_line += f"（新增 {new_count} + {rss_new_count}）"
+        base_header += f"{total_news_line}\n"
 
-    # 2. 热榜
-    hotlist_info = f"{b_s}热榜：{b_e} {total_hotlist_count}/{hotlist_total}"
-    if platform_total > 0:
-        hotlist_info += f"（平台 {platform_success}/{platform_total}）"
-    base_header += f"{hotlist_info}\n"
+        # 2. 热榜
+        hotlist_info = f"{b_s}热榜：{b_e} {total_hotlist_count}/{hotlist_total}"
+        if platform_total > 0:
+            hotlist_info += f"（平台 {platform_success}/{platform_total}）"
+        base_header += f"{hotlist_info}\n"
 
-    # 3. RSS
+    # 3. RSS（仅在有数据时显示）
     if rss_source_total > 0:
         rss_info = f"{b_s}RSS：{b_e} {rss_matched}/{rss_total_items}（源 {rss_source_success}/{rss_source_total}）"
         base_header += f"{rss_info}\n"
