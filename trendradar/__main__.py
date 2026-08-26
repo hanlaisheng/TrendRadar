@@ -388,6 +388,16 @@ class NewsAnalyzer:
             else:
                 ai_report_type = report_type
 
+            # 调试：打印 rss_items 格式
+            print(f"[AI-DEBUG] ai_mode={ai_mode}, mode={mode}")
+            print(f"[AI-DEBUG] rss_items type={type(rss_items).__name__}, len={len(rss_items) if rss_items else 0}")
+            if rss_items and isinstance(rss_items, list) and len(rss_items) > 0:
+                first = rss_items[0]
+                print(f"[AI-DEBUG] first item type={type(first).__name__}")
+                if isinstance(first, dict):
+                    print(f"[AI-DEBUG] first item keys={list(first.keys())}")
+                    print(f"[AI-DEBUG] first item sample={str(first)[:200]}")
+
             # 独立 AI 模式（ai_mode != 推送 mode）下，rss_items/standalone_data 仍是推送 mode 的数据，
             # 与 ai_mode 的热榜 ai_stats 不同源。为避免时间窗错配的数据误导分析，独立模式下不向 AI
             # 传入 RSS/独立展示区，使其专注于 ai_mode 的热榜分析（同 mode 时正常传入）。
