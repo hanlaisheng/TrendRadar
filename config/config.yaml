@@ -133,7 +133,7 @@ rss:
     name: 纽约时报经济
     url: https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml
 report:
-  mode: current
+  mode: daily
   display_mode: keyword
   sort_by_position_first: false
   rank_threshold: 5
