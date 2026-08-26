@@ -388,16 +388,6 @@ class NewsAnalyzer:
             else:
                 ai_report_type = report_type
 
-            # 调试：打印 rss_items 格式
-            print(f"[AI-DEBUG] ai_mode={ai_mode}, mode={mode}")
-            print(f"[AI-DEBUG] rss_items type={type(rss_items).__name__}, len={len(rss_items) if rss_items else 0}")
-            if rss_items and isinstance(rss_items, list) and len(rss_items) > 0:
-                first = rss_items[0]
-                print(f"[AI-DEBUG] first item type={type(first).__name__}")
-                if isinstance(first, dict):
-                    print(f"[AI-DEBUG] first item keys={list(first.keys())}")
-                    print(f"[AI-DEBUG] first item sample={str(first)[:200]}")
-
             # 独立 AI 模式（ai_mode != 推送 mode）下，rss_items/standalone_data 仍是推送 mode 的数据，
             # 与 ai_mode 的热榜 ai_stats 不同源。为避免时间窗错配的数据误导分析，独立模式下不向 AI
             # 传入 RSS/独立展示区，使其专注于 ai_mode 的热榜分析（同 mode 时正常传入）。
@@ -1629,6 +1619,12 @@ class NewsAnalyzer:
 
             # 抓取 RSS 数据（如果启用），返回统计条目、新增条目和原始条目
             rss_items, rss_new_items, raw_rss_items, rss_new_urls = self._crawl_rss_data()
+
+            # 修复：当按关键词分组的统计数据为空时，回退使用原始 RSS 新闻列表
+            # 否则 AI 分析会因为 rss_items 为空而被跳过
+            if not rss_items and raw_rss_items:
+                print(f"[RSS] 关键词统计为空，回退使用原始 RSS 新闻列表（{len(raw_rss_items)}条）进行 AI 分析")
+                rss_items = raw_rss_items
 
             # 执行模式策略，传递 RSS 数据用于合并推送
             self._execute_mode_strategy(
