@@ -252,6 +252,33 @@ class AIAnalyzer:
                 error=friendly_msg
             )
 
+    def _filter_no_data_phrases(self, text: str) -> str:
+        """强制过滤AI输出中'暂无热榜数据'之类的无意义提示语"""
+        if not text:
+            return text
+        import re
+        # 禁用短语列表
+        forbidden_patterns = [
+            r'暂无热榜数据[^。\n！？]*[。\n！？]?',
+            r'暂无热榜轨迹数据[^。\n！？]*[。\n！？]?',
+            r'无法判断全网热度[^。\n！？]*[。\n！？]?',
+            r'暂无热榜[^。\n！？]*[。\n！？]?',
+            r'热榜数据为空[^。\n！？]*[。\n！？]?',
+            r'无热榜数据[^。\n！？]*[。\n！？]?',
+            r'热榜为空[^。\n！？]*[。\n！？]?',
+            r'没有热榜数据[^。\n！？]*[。\n！？]?',
+            r'热榜数据不足[^。\n！？]*[。\n！？]?',
+            r'由于没有热榜[^。\n！？]*[。\n！？]?',
+            r'因无热榜[^。\n！？]*[。\n！？]?',
+        ]
+        filtered = text
+        for pattern in forbidden_patterns:
+            filtered = re.sub(pattern, '', filtered)
+        # 清理多余的空行和空格
+        filtered = re.sub(r'\n{3,}', '\n\n', filtered)
+        filtered = re.sub(r'[ \t]+', ' ', filtered)
+        return filtered.strip()
+
     def _prepare_news_content(
         self,
         stats: List[Dict],
@@ -649,11 +676,11 @@ class AIAnalyzer:
 
         # 解析成功，提取字段
         try:
-            result.core_trends = data.get("core_trends", "")
+            result.core_trends = self._filter_no_data_phrases(data.get("core_trends", ""))
             result.sentiment_controversy = data.get("sentiment_controversy", "")
-            result.signals = data.get("signals", "")
-            result.rss_insights = data.get("rss_insights", "")
-            result.outlook_strategy = data.get("outlook_strategy", "")
+            result.signals = self._filter_no_data_phrases(data.get("signals", ""))
+            result.rss_insights = self._filter_no_data_phrases(data.get("rss_insights", ""))
+            result.outlook_strategy = self._filter_no_data_phrases(data.get("outlook_strategy", ""))
 
             # 解析独立展示区概括
             summaries = data.get("standalone_summaries", {})
