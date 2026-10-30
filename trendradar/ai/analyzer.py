@@ -14,6 +14,23 @@ from trendradar.ai.client import AIClient
 from trendradar.ai.prompt_loader import load_prompt_template
 
 
+def _coerce_analysis_text(value: Any) -> str:
+    """将模型返回的分析字段归一化为文本，供报告和推送渲染。"""
+    if value is None:
+        return ""
+    if isinstance(value, list):
+        parts = []
+        for item in value:
+            if isinstance(item, str):
+                parts.append(item)
+            else:
+                parts.append(json.dumps(item, ensure_ascii=False))
+        return "\n".join(parts)
+    if isinstance(value, str):
+        return value
+    return json.dumps(value, ensure_ascii=False)
+
+
 @dataclass
 class AIAnalysisResult:
     """AI 分析结果"""
@@ -252,33 +269,6 @@ class AIAnalyzer:
                 error=friendly_msg
             )
 
-    def _filter_no_data_phrases(self, text: str) -> str:
-        """强制过滤AI输出中'暂无热榜数据'之类的无意义提示语"""
-        if not text:
-            return text
-        import re
-        # 禁用短语列表
-        forbidden_patterns = [
-            r'暂无热榜数据[^。\n！？]*[。\n！？]?',
-            r'暂无热榜轨迹数据[^。\n！？]*[。\n！？]?',
-            r'无法判断全网热度[^。\n！？]*[。\n！？]?',
-            r'暂无热榜[^。\n！？]*[。\n！？]?',
-            r'热榜数据为空[^。\n！？]*[。\n！？]?',
-            r'无热榜数据[^。\n！？]*[。\n！？]?',
-            r'热榜为空[^。\n！？]*[。\n！？]?',
-            r'没有热榜数据[^。\n！？]*[。\n！？]?',
-            r'热榜数据不足[^。\n！？]*[。\n！？]?',
-            r'由于没有热榜[^。\n！？]*[。\n！？]?',
-            r'因无热榜[^。\n！？]*[。\n！？]?',
-        ]
-        filtered = text
-        for pattern in forbidden_patterns:
-            filtered = re.sub(pattern, '', filtered)
-        # 清理多余的空行和空格
-        filtered = re.sub(r'\n{3,}', '\n\n', filtered)
-        filtered = re.sub(r'[ \t]+', ' ', filtered)
-        return filtered.strip()
-
     def _prepare_news_content(
         self,
         stats: List[Dict],
@@ -289,16 +279,9 @@ class AIAnalyzer:
         news_count = 0
         rss_count = 0
 
-        # 计算总新闻数（兼容两种格式：关键词统计格式 / 原始新闻列表格式）
+        # 计算总新闻数
         hotlist_total = sum(len(s.get("titles", [])) for s in stats) if stats else 0
-        if rss_stats:
-            first = rss_stats[0] if rss_stats else {}
-            if "word" in first and "titles" in first:
-                rss_total = sum(len(s.get("titles", [])) for s in rss_stats)
-            else:
-                rss_total = len(rss_stats)
-        else:
-            rss_total = 0
+        rss_total = sum(len(s.get("titles", [])) for s in rss_stats) if rss_stats else 0
 
         # 热榜内容
         if stats:
@@ -354,61 +337,41 @@ class AIAnalyzer:
                 if news_count >= self.max_news:
                     break
 
-        # RSS 内容（仅在启用时构建，兼容关键词统计格式和原始新闻列表格式）
+        # RSS 内容（仅在启用时构建）
         if self.include_rss and rss_stats:
             remaining = self.max_news - news_count
-            # 检测格式：关键词统计格式 {word, titles} vs 原始新闻列表格式 {title, ...}
-            first_item = rss_stats[0] if rss_stats else {}
-            is_keyword_format = "word" in first_item and "titles" in first_item
+            for stat in rss_stats:
+                if rss_count >= remaining:
+                    break
+                word = stat.get("word", "")
+                titles = stat.get("titles", [])
+                if word and titles:
+                    rss_lines.append(f"\n**{word}** ({len(titles)}条)")
+                    for t in titles:
+                        if not isinstance(t, dict):
+                            continue
+                        title = t.get("title", "")
+                        if not title:
+                            continue
 
-            if is_keyword_format:
-                # 关键词统计格式
-                for stat in rss_stats:
-                    if rss_count >= remaining:
-                        break
-                    word = stat.get("word", "")
-                    titles = stat.get("titles", [])
-                    if word and titles:
-                        rss_lines.append(f"\n**{word}** ({len(titles)}条)")
-                        for t in titles:
-                            if not isinstance(t, dict):
-                                continue
-                            title = t.get("title", "")
-                            if not title:
-                                continue
-                            source = t.get("source_name", t.get("feed_name", ""))
-                            time_display = t.get("time_display", "")
-                            if source:
-                                line = f"- [{source}] {title}"
-                            else:
-                                line = f"- {title}"
-                            if time_display:
-                                line += f" | {time_display}"
-                            rss_lines.append(line)
-                            rss_count += 1
-                            if rss_count >= remaining:
-                                break
-            else:
-                # 原始新闻列表格式：每项直接是一条新闻 {title, url, source, ...}
-                rss_lines.append(f"\n**RSS资讯** ({len(rss_stats)}条)")
-                for item in rss_stats:
-                    if rss_count >= remaining:
-                        break
-                    if not isinstance(item, dict):
-                        continue
-                    title = item.get("title", "")
-                    if not title:
-                        continue
-                    source = item.get("source_name", item.get("source", item.get("feed_name", "")))
-                    time_display = item.get("time_display", item.get("published", ""))
-                    if source:
-                        line = f"- [{source}] {title}"
-                    else:
-                        line = f"- {title}"
-                    if time_display:
-                        line += f" | {time_display}"
-                    rss_lines.append(line)
-                    rss_count += 1
+                        # 来源
+                        source = t.get("source_name", t.get("feed_name", ""))
+
+                        # 发布时间
+                        time_display = t.get("time_display", "")
+
+                        # 构建行：[来源] 标题 | 发布时间
+                        if source:
+                            line = f"- [{source}] {title}"
+                        else:
+                            line = f"- {title}"
+                        if time_display:
+                            line += f" | {time_display}"
+                        rss_lines.append(line)
+
+                        rss_count += 1
+                        if rss_count >= remaining:
+                            break
 
         news_content = "\n".join(news_lines) if news_lines else ""
         rss_content = "\n".join(rss_lines) if rss_lines else ""
@@ -676,11 +639,11 @@ class AIAnalyzer:
 
         # 解析成功，提取字段
         try:
-            result.core_trends = self._filter_no_data_phrases(data.get("core_trends", ""))
-            result.sentiment_controversy = data.get("sentiment_controversy", "")
-            result.signals = self._filter_no_data_phrases(data.get("signals", ""))
-            result.rss_insights = self._filter_no_data_phrases(data.get("rss_insights", ""))
-            result.outlook_strategy = self._filter_no_data_phrases(data.get("outlook_strategy", ""))
+            result.core_trends = _coerce_analysis_text(data.get("core_trends", ""))
+            result.sentiment_controversy = _coerce_analysis_text(data.get("sentiment_controversy", ""))
+            result.signals = _coerce_analysis_text(data.get("signals", ""))
+            result.rss_insights = _coerce_analysis_text(data.get("rss_insights", ""))
+            result.outlook_strategy = _coerce_analysis_text(data.get("outlook_strategy", ""))
 
             # 解析独立展示区概括
             summaries = data.get("standalone_summaries", {})
