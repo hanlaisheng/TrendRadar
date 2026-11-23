@@ -166,3 +166,14 @@ jobs:
         with:
           path: output
           key: trendradar-data-${{ github.run_id }}
+
+      # 上传本次生成的图表版报告，便于在 Actions 页面直接查看/下载，
+      # 也便于核对 AI 分析正文是否出现"暂无数据"类占位或空话。
+      - name: Upload report artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ github.run_id }}
+          path: output/html/latest/
+          retention-days: 3
+          if-no-files-found: ignore
