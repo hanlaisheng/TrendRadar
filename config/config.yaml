@@ -155,7 +155,10 @@ display:
   regions:
     hotlist: false
     new_items: false
-    rss: false
+    # 注意：当前上游版本把"RSS 分析"与"RSS 展示"绑在同一个开关上，
+    # 这里必须为 true 才会执行 RSS 关键词匹配并把 RSS 内容交给 AI 分析。
+    # 推送里不会出现 RSS 原文列表，因为 region_order 只保留了 ai_analysis。
+    rss: true
     standalone: false
     ai_analysis: true
   standalone:

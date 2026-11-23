@@ -85,6 +85,7 @@ jobs:
             OURS_FILES=(
               "config/config.yaml"
               "config/ai_interests.txt"
+              "config/ai_analysis_prompt.txt"
               ".github/workflows/crawler.yml"
               ".github/workflows/auto-checkin.yml"
             )

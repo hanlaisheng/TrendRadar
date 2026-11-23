@@ -7,6 +7,7 @@ AI 分析器模块
 """
 
 import json
+import re
 from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, NamedTuple, Optional
 
@@ -27,8 +28,44 @@ def _coerce_analysis_text(value: Any) -> str:
                 parts.append(json.dumps(item, ensure_ascii=False))
         return "\n".join(parts)
     if isinstance(value, str):
-        return value
+        return _strip_empty_placeholders(value)
     return json.dumps(value, ensure_ascii=False)
+
+
+_EMPTY_PLACEHOLDER_PATTERNS = (
+    r"暂无热榜数据[^。\n！？]*[。！？]?",
+    r"暂无热榜轨迹数据[^。\n！？]*[。！？]?",
+    r"暂无热榜轨迹[^。\n！？]*[。！？]?",
+    r"无法判断全网热度[^。\n！？]*[。！？]?",
+    r"暂无热榜[^。\n！？]*[。！？]?",
+    r"热榜数据为空[^。\n！？]*[。！？]?",
+    r"无热榜数据[^。\n！？]*[。！？]?",
+    r"热榜为空[^。\n！？]*[。！？]?",
+    r"没有热榜数据[^。\n！？]*[。！？]?",
+    r"热榜数据不足[^。\n！？]*[。！？]?",
+    r"暂无RSS数据[^。\n！？]*[。！？]?",
+    r"暂无联网搜索数据[^。\n！？]*[。！？]?",
+    r"由于(没有|缺少|暂无)热榜[^。\n！？]*[。！？]?",
+    r"因无热榜[^。\n！？]*[。！？]?",
+)
+
+
+def _strip_empty_placeholders(text: str) -> str:
+    """剔除 AI 输出中"暂无热榜数据"这类无信息量的占位说明。
+
+    上游新版本把热榜源全部关闭使用纯 RSS 模式时，模型仍会复述"暂无热榜数据"，
+    这类句子对读者没有任何价值，这里在代码层兜底过滤（提示词只是软约束）。
+    """
+    if not text:
+        return text
+    cleaned = text
+    for pattern in _EMPTY_PLACEHOLDER_PATTERNS:
+        cleaned = re.sub(pattern, "", cleaned)
+    # 清理被删句后残留的空行与多余空白
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
+    cleaned = "\n".join(line.strip() for line in cleaned.split("\n"))
+    return cleaned.strip()
 
 
 @dataclass

@@ -267,11 +267,12 @@ def split_content_into_batches(
             total_news_line += f"（新增 {new_count} + {rss_new_count}）"
     base_header += f"{total_news_line}\n"
 
-    # 2. 热榜
-    hotlist_info = f"{b_s}热榜：{b_e} {total_hotlist_count}/{hotlist_total}"
-    if platform_total > 0:
-        hotlist_info += f"（平台 {platform_success}/{platform_total}）"
-    base_header += f"{hotlist_info}\n"
+    # 2. 热榜（纯 RSS 模式且无热榜数据时不展示，避免"热榜 0/0"误导）
+    if total_hotlist_count > 0 or hotlist_total > 0 or platform_total > 0:
+        hotlist_info = f"{b_s}热榜：{b_e} {total_hotlist_count}/{hotlist_total}"
+        if platform_total > 0:
+            hotlist_info += f"（平台 {platform_success}/{platform_total}）"
+        base_header += f"{hotlist_info}\n"
 
     # 3. RSS
     if rss_source_total > 0:
