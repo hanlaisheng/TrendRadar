@@ -297,7 +297,9 @@ ai_analysis:
   language: Chinese
   prompt_file: ai_analysis_prompt.txt
   mode: follow_report
-  max_news_for_analysis: 60
+  # 送入 AI 的样本条数上限：控制在 20 条，让 AI 从 20 条里挑出 12 条精选，
+  # 推送正文只呈现 12 条 + 指标表 + 研判，不再罗列全部采集量。
+  max_news_for_analysis: 20
   include_rss: true
   include_standalone: false
   include_rank_timeline: true

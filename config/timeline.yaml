@@ -446,8 +446,8 @@ custom:
                                    # 例如静默期不想花搜索额度，可以设 search: false，只在早晚时段设 search: true
     # search_file: "policy.txt"    # 联网搜索任务文件（可选，位于 config/custom/search/，不填用默认的 search_queries.txt）
     once:
-      analyze: false               # 该时间段内只分析一次（省 API）
-      push: false                  # 该时间段内只推送一次（省打扰）
+      analyze: true                # 该时间段内只分析一次（省 API）
+      push: true                   # 该时间段内只推送一次（省打扰）
       # search: true               # 该时间段内只执行一次联网搜索（省搜索额度）
 
 

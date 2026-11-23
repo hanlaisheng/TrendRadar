@@ -103,7 +103,7 @@ def _render_ai_analysis_markdown_like(
     lines = ["**✨ AI 热点分析**", ""]
 
     if result.core_trends:
-        lines.extend(["**核心热点态势**", _format_list_content(result.core_trends), ""])
+        lines.extend(["**今日精选**", _format_list_content(result.core_trends), ""])
 
     if result.sentiment_controversy:
         lines.extend(
@@ -111,7 +111,7 @@ def _render_ai_analysis_markdown_like(
         )
 
     if result.signals:
-        lines.extend(["**异动与弱信号**", _format_list_content(result.signals), ""])
+        lines.extend(["**关键指标**", _format_list_content(result.signals), ""])
 
     if result.rss_insights:
         lines.extend(
@@ -125,7 +125,7 @@ def _render_ai_analysis_markdown_like(
 
     if result.outlook_strategy:
         lines.extend(
-            ["**研判策略建议**", _format_list_content(result.outlook_strategy), ""]
+            ["**可验证研判**", _format_list_content(result.outlook_strategy), ""]
         )
 
     if result.standalone_summaries:

@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, NamedTuple, Optional
 
 from trendradar.ai.client import AIClient
+from trendradar.ai.fact_check import build_source_text, verify_analysis_result
 from trendradar.ai.prompt_loader import load_prompt_template
 
 
@@ -293,6 +294,18 @@ class AIAnalyzer:
                     result = retry_result
                 else:
                     print("[AI] JSON 修复失败，使用原始文本兜底")
+
+            # 事实校验：AI 输出的关键数字必须能在原始素材中查到，
+            # 查不到的按板块规则删除或标注〔待核〕，防止推送里出现编造的数值。
+            # 放在重试兜底之后执行，保证被替换的结果同样经过校验。
+            source_text = build_source_text(
+                prepared.news_content,
+                prepared.rss_content,
+                prepared.search_content,
+                standalone_content,
+                current_time,
+            )
+            result, _verify_stats = verify_analysis_result(result, source_text)
 
             # 如果配置未启用 RSS 分析，强制清空 AI 返回的 RSS 洞察
             if not self.include_rss:

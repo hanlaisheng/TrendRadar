@@ -329,16 +329,24 @@ def split_content_into_batches(
         base_header += f"{b_s}AI 分析：{b_e} {ai_display}{mode_suffix}\n"
 
     # === 空行分隔 ===
+    # 企业微信：清掉上面的采集量统计（总新闻/RSS 命中/源状态等），
+    # 只保留一句简报标题。推送正文的条数由 AI 精选固定（约 12 条）。
+    if format_type == "wework":
+        base_header = f"{b_s}今日简报 · {report_type}{b_e}\n"
     base_header += "\n"
 
     # === 下半部分：元信息 ===
-    base_header += f"{b_s}类型：{b_e} {report_type}\n"
-    base_header += f"{b_s}时间：{b_e} {now.strftime('%Y-%m-%d %H:%M:%S')}\n"
+    if format_type == "wework":
+        # 企业微信：只留时间（报告类型已在标题里），不罗列关键词统计
+        base_header += f"{b_s}时间：{b_e} {now.strftime('%Y-%m-%d %H:%M')}\n"
+    else:
+        base_header += f"{b_s}类型：{b_e} {report_type}\n"
+        base_header += f"{b_s}时间：{b_e} {now.strftime('%Y-%m-%d %H:%M:%S')}\n"
 
-    top_words = report_data.get("stats", [])[:3]
-    if top_words:
-        topics = " | ".join(f"{s['word']}({s['count']})" for s in top_words)
-        base_header += f"{b_s}最热话题：{b_e} {topics}\n"
+        top_words = report_data.get("stats", [])[:3]
+        if top_words:
+            topics = " | ".join(f"{s['word']}({s['count']})" for s in top_words)
+            base_header += f"{b_s}最热话题：{b_e} {topics}\n"
 
     if format_type in ("feishu", "dingtalk"):
         base_header += "\n---\n\n"
