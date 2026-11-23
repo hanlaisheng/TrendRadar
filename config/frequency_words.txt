@@ -50,6 +50,13 @@
 减肥
 # 过滤娱乐/八卦（英文，避免外媒软新闻混入）
 /celebrity|gossip|kardashian|box office|reality tv|red carpet/
+# 过滤小矿企钻探/资源量公告（只保留金银铜价本身的宏观驱动，不要个股地质报告）
+# 用专业术语组合提高精度，避免误杀「offshore drilling ban」「rig count」这类政策/宏观数据
+/CuEq|g\/t|drill hole|drilling result|drill results|high-grade intersection|resource estimate|step-out/
+钻探
+品位
+见矿
+资源量
 
 
 
