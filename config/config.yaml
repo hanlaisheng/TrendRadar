@@ -1,8 +1,11 @@
 app:
   timezone: Asia/Shanghai
   show_version_update: true
+# 时间段调度：启用后，只有命中 timeline.yaml 窗口的时间才会推送。
+# 窗口外（尤其 22:30 之后到次日 06:00）只采集、不分析、不推送 → 彻底避免半夜打扰；
+# 窗口内「只推一次」可抵御 GitHub Actions 的随机触发延迟，避免同窗口重复轰炸。
 schedule:
-  enabled: false
+  enabled: true
   preset: custom
 platforms:
   enabled: true
