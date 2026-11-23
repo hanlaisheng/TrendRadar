@@ -80,12 +80,13 @@ rss:
     url: https://www.theguardian.com/environment/rss
     max_age_days: 2
   # 路透社/美联社官方 RSS 已停服，改用 Google News 站点检索作为替代通道
-  - id: reuters-gn
-    name: 路透社(站点检索)
-    url: "https://news.google.com/rss/search?q=site:reuters.com+when:1d&hl=en-US&gl=US&ceid=US:en"
-  - id: ap-gn
-    name: 美联社(站点检索)
-    url: "https://news.google.com/rss/search?q=site:apnews.com+when:1d&hl=en-US&gl=US&ceid=US:en"
+  # 通讯社直连 RSS（feeds.reuters.com / feeds.apnews.com）早已停止对外服务，
+  # 改走 Google News 站点检索通道。注意：同一出口 IP 连续请求 Google News 会被限流(503)，
+  # 因此把通讯社合并为单个源，并配合 fetcher 的限流退避重试。
+  - id: wires-gn
+    name: 路透社·美联社(站点检索)
+    url: "https://news.google.com/rss/search?q=(site:reuters.com+OR+site:apnews.com)+when:1d&hl=en-US&gl=US&ceid=US:en"
+    max_items: 60
 
   # ── 财经与市场 ───────────────────────────────────────────────
   - id: bloomberg-markets
@@ -124,14 +125,11 @@ rss:
     name: Investing黄金
     url: https://www.investing.com/rss/news_285.rss
   # FXStreet / Mining.com 在 GitHub Actions 出口 IP 上返回 403，改用主题检索通道
-  - id: gold-gn
-    name: 黄金贵金属(主题检索)
-    url: "https://news.google.com/rss/search?q=(gold+OR+bullion+OR+silver+OR+XAU)+site:reuters.com+OR+site:kitco.com+when:2d&hl=en-US&gl=US&ceid=US:en"
+  - id: commodities-gn
+    name: 贵金属与工业金属(主题检索)
+    url: "https://news.google.com/rss/search?q=(gold+OR+bullion+OR+silver+OR+copper+OR+lithium)+(site:reuters.com+OR+site:kitco.com)+when:2d&hl=en-US&gl=US&ceid=US:en"
     max_age_days: 2
-  - id: metals-gn
-    name: 金属矿业(主题检索)
-    url: "https://news.google.com/rss/search?q=(copper+OR+lithium+OR+mining+OR+smelter)+when:2d&hl=en-US&gl=US&ceid=US:en"
-    max_age_days: 2
+    max_items: 40
 
   # ── 官方一级信源（政策/数据原文，预测基准） ───────────────────
   - id: fed-press
