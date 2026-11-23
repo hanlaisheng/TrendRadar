@@ -16,6 +16,9 @@ from .parser import RSSParser
 from trendradar.storage.base import RSSItem, RSSData
 from trendradar.utils.time import get_configured_time, is_within_days, DEFAULT_TIMEZONE
 
+# 遇到 429/503 限流时的最小退避秒数（未提供 Retry-After 时使用）
+RATE_LIMIT_BACKOFF_SECONDS = 10.0
+
 
 @dataclass
 class RSSFeedConfig:
@@ -117,6 +120,18 @@ class RSSFetcher:
                         or (error_response is not None and "Retry-After" in error_response.headers)
                     ):
                         raise
+                    # 限流类响应（429 Too Many Requests / 503 Service Unavailable）
+                    # 立即重试几乎必然再次被拒，先退避一段时间再试，否则同一出口 IP
+                    # 连续请求聚合类源（如 Google News）会成片失败。
+                    if error_response is not None and error_response.status_code in (429, 503):
+                        retry_after = error_response.headers.get("Retry-After")
+                        try:
+                            wait = float(retry_after) if retry_after else 0
+                        except (TypeError, ValueError):
+                            wait = 0
+                        wait = max(wait, RATE_LIMIT_BACKOFF_SECONDS)
+                        print(f"[RSS] {feed.name}: 服务端限流({error_response.status_code})，退避 {wait:.0f}s 后重试")
+                        time.sleep(wait)
 
             parsed_items = self.parser.parse(response.text, feed.url)
 
