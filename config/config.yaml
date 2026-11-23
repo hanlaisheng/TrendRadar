@@ -120,14 +120,15 @@ rss:
   - id: investing-gold
     name: Investing黄金
     url: https://www.investing.com/rss/news_285.rss
-  - id: fxstreet-news
-    name: FXStreet外汇贵金属
-    url: https://www.fxstreet.com/rss/news
+  # FXStreet / Mining.com 在 GitHub Actions 出口 IP 上返回 403，改用主题检索通道
+  - id: gold-gn
+    name: 黄金贵金属(主题检索)
+    url: "https://news.google.com/rss/search?q=(gold+OR+bullion+OR+silver+OR+XAU)+site:reuters.com+OR+site:kitco.com+when:2d&hl=en-US&gl=US&ceid=US:en"
     max_age_days: 2
-  - id: mining-com
-    name: Mining金属矿业
-    url: https://www.mining.com/feed/
-    max_age_days: 4
+  - id: metals-gn
+    name: 金属矿业(主题检索)
+    url: "https://news.google.com/rss/search?q=(copper+OR+lithium+OR+mining+OR+smelter)+when:2d&hl=en-US&gl=US&ceid=US:en"
+    max_age_days: 2
 
   # ── 官方一级信源（政策/数据原文，预测基准） ───────────────────
   - id: fed-press
