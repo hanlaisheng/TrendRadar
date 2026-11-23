@@ -88,6 +88,14 @@ jobs:
               "config/ai_analysis_prompt.txt"
               ".github/workflows/crawler.yml"
               ".github/workflows/auto-checkin.yml"
+              # 以下是我们自己动过刀的代码文件：冲突时必须保留本地版本，
+              # 否则上游一同步就会把「12条精简报表/事实校验/板块标题」等改造冲掉。
+              # 代价是上游对这些文件的修复不会自动进来（需要人工比对合并）。
+              "trendradar/ai/analyzer.py"
+              "trendradar/ai/formatter.py"
+              "trendradar/ai/fact_check.py"
+              "trendradar/notification/splitter.py"
+              "trendradar/crawler/rss/fetcher.py"
             )
 
             # 获取所有冲突文件列表
