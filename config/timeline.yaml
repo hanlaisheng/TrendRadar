@@ -466,32 +466,34 @@ custom:
   periods:
 
     morning_briefing:
-      name: "早间快报"
+      name: "早间汇总"
       start: "06:00"
-      end: "08:00"                 # 窗口 06:00-08:00，cron 在 06:30 触发
+      end: "10:30"                 # 窗口 06:00-10:30，cron 在 06:30 触发
+                                   # 窗口留宽是为了吸收 GitHub Actions 的随机触发延迟：
+                                   # 延迟抵达时仍在窗口内 → 照常推送；漂到深夜则落在静默期不推送
       analyze: true                # 早间 AI 分析
-      ai_mode: "current"           # 分析当前榜单
-      push: true                   # 推送当前热点
-      report_mode: "current"       # 当前在榜的新闻
-      # once 继承 default（push: true）→ 窗口内只推一次
+      ai_mode: "daily"             # 分析当日累计内容（而非仅当前一批）
+      push: true                   # 推送
+      report_mode: "daily"         # 单条全天汇总报表，一次看完
+      # once 继承 default（push: true）→ 窗口内只推一次，避免延迟触发造成重复轰炸
 
     noon_update:
-      name: "午间热点"
-      start: "12:00"
-      end: "14:00"                 # 窗口 12:00-14:00，cron 在 12:10 触发
+      name: "午间汇总"
+      start: "11:30"
+      end: "16:00"                 # 窗口 11:30-16:00，cron 在 12:10 触发
       analyze: true                # 午间 AI 分析
-      ai_mode: "current"           # 分析当前榜单
-      push: true                   # 推送当前热点
-      report_mode: "current"       # 当前在榜的新闻
+      ai_mode: "daily"             # 分析当日累计内容
+      push: true                   # 推送
+      report_mode: "daily"         # 单条全天汇总报表
       # once 继承 default（push: true）→ 窗口内只推一次
 
     evening_summary:
       name: "晚间汇总"
-      start: "18:00"
-      end: "20:00"                 # 窗口 18:00-20:00，cron 在 18:10 触发
-      analyze: true                # 晚间做 AI 分析
-      ai_mode: "daily"             # AI 也分析全天内容
-      push: true                   # 晚间推送
+      start: "17:00"
+      end: "22:30"                 # 窗口 17:00-22:30，cron 在 18:10 触发
+      analyze: true                # 晚间 AI 分析
+      ai_mode: "daily"             # 分析当日累计内容
+      push: true                   # 推送
       report_mode: "daily"         # 当日全部新闻汇总
       # once 继承 default（analyze: true, push: true）→ 只分析/推送一次
 
