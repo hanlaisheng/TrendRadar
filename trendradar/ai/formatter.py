@@ -353,7 +353,7 @@ def render_ai_analysis_html_rich(result: AIAnalysisResult) -> str:
     if result.core_trends:
         content = _format_list_content(result.core_trends)
         content_html = _escape_html(content).replace("\n", "<br>")
-        ai_html += _render_block("核心热点态势", content_html, "core")
+        ai_html += _render_block("今日精选", content_html, "core")
 
     if result.sentiment_controversy:
         content = _format_list_content(result.sentiment_controversy)
@@ -363,7 +363,7 @@ def render_ai_analysis_html_rich(result: AIAnalysisResult) -> str:
     if result.signals:
         content = _format_list_content(result.signals)
         content_html = _escape_html(content).replace("\n", "<br>")
-        ai_html += _render_block("异动与弱信号", content_html, "signals")
+        ai_html += _render_block("关键指标", content_html, "signals")
 
     if result.rss_insights:
         content = _format_list_content(result.rss_insights)
@@ -378,7 +378,7 @@ def render_ai_analysis_html_rich(result: AIAnalysisResult) -> str:
     if result.outlook_strategy:
         content = _format_list_content(result.outlook_strategy)
         content_html = _escape_html(content).replace("\n", "<br>")
-        ai_html += _render_block("研判策略建议", content_html, "strategy")
+        ai_html += _render_block("可验证研判", content_html, "strategy")
 
     if result.standalone_summaries:
         summaries_text = _format_standalone_summaries(result.standalone_summaries)

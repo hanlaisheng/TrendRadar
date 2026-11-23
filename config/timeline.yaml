@@ -406,7 +406,10 @@ custom:
   # 时间段中没有写的字段，也会回退到这里。
   # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   default:
-    collect: true                  # 是否采集数据（爬取热榜 + RSS）
+    collect: false                 # 窗口外不采集：GitHub 的 cron 会随机延迟数小时，
+                                   # 因此改成每 15 分钟触发一次、由窗口决定是否真正干活。
+                                   # 落在窗口外时本行让程序秒退，既不采集也不打扰。
+                                   # 三个推送窗口内的运行才采集+分析+推送（每窗口 once 只推一次）
     analyze: false                 # 是否执行 AI 分析
     ai_mode: "current"            # AI 分析模式:
                                    #   follow_report → 跟随 report_mode
@@ -446,7 +449,7 @@ custom:
                                    # 例如静默期不想花搜索额度，可以设 search: false，只在早晚时段设 search: true
     # search_file: "policy.txt"    # 联网搜索任务文件（可选，位于 config/custom/search/，不填用默认的 search_queries.txt）
     once:
-      analyze: false               # 【临时】放开分析限制以核验AI正文，验证后恢复 true
+      analyze: true                # 该时间段内只分析一次（省 API）
       push: true                   # 该时间段内只推送一次（省打扰）
       # search: true               # 该时间段内只执行一次联网搜索（省搜索额度）
 
@@ -467,11 +470,12 @@ custom:
 
     morning_briefing:
       name: "早间汇总"
-      start: "06:00"
-      end: "10:30"                 # 窗口 06:00-10:30，cron 在 06:30 触发
-                                   # 窗口留宽是为了吸收 GitHub Actions 的随机触发延迟：
-                                   # 延迟抵达时仍在窗口内 → 照常推送；漂到深夜则落在静默期不推送
+      start: "06:30"
+      end: "10:30"                 # 窗口 06:30-10:30，第一个落进窗口的定时运行即推送
+                                   # 每 15 分钟一次的 cron：06:30 触发即准点；被 GitHub 延迟
+                                   # 到 06:45/07:00 时仍在窗口内 → 照常推送一次；漂到深夜则秒退不打扰
       analyze: true                # 早间 AI 分析
+      collect: true                # 窗口内必须显式采集（default 已设 false，否则本窗口会秒退）
       ai_mode: "daily"             # 分析当日累计内容（而非仅当前一批）
       push: true                   # 推送
       report_mode: "daily"         # 单条全天汇总报表，一次看完
@@ -479,9 +483,10 @@ custom:
 
     noon_update:
       name: "午间汇总"
-      start: "11:30"
-      end: "16:00"                 # 窗口 11:30-16:00，cron 在 12:10 触发
+      start: "12:10"
+      end: "16:00"                 # 窗口 12:10-16:00，第一个落进窗口的定时运行即推送
       analyze: true                # 午间 AI 分析
+      collect: true                # 窗口内采集
       ai_mode: "daily"             # 分析当日累计内容
       push: true                   # 推送
       report_mode: "daily"         # 单条全天汇总报表
@@ -489,9 +494,10 @@ custom:
 
     evening_summary:
       name: "晚间汇总"
-      start: "17:00"
-      end: "22:30"                 # 窗口 17:00-22:30，cron 在 18:10 触发
+      start: "18:10"
+      end: "22:30"                 # 窗口 18:10-22:30，第一个落进窗口的定时运行即推送
       analyze: true                # 晚间 AI 分析
+      collect: true                # 窗口内采集
       ai_mode: "daily"             # 分析当日累计内容
       push: true                   # 推送
       report_mode: "daily"         # 当日全部新闻汇总
