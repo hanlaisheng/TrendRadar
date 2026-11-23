@@ -62,24 +62,7 @@ rss:
     enabled: true
     max_age_days: 1
   feeds:
-  - id: bloomberg-markets
-    name: 彭博市场
-    url: https://feeds.bloomberg.com/markets/news.rss
-  - id: ft-world
-    name: 金融时报FT
-    url: https://www.ft.com/rss/home
-  - id: cnbc-world
-    name: CNBC全球财经
-    url: https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362
-  - id: yahoo-finance
-    name: 雅虎财经
-    url: https://finance.yahoo.com/news/rssindex
-  - id: coindesk
-    name: CoinDesk加密货币
-    url: https://www.coindesk.com/arc/outboundfeeds/rss/
-  - id: ap-topnews
-    name: 美联社AP
-    url: https://feeds.apnews.com/apnews/topnews
+  # ── 综合与通讯社 ─────────────────────────────────────────────
   - id: bbc-world
     name: BBC世界新闻
     url: https://feeds.bbci.co.uk/news/world/rss.xml
@@ -89,34 +72,94 @@ rss:
   - id: guardian-world
     name: 卫报世界新闻
     url: https://www.theguardian.com/world/rss
-  - id: economist-china
-    name: 经济学人·中国
-    url: https://www.economist.com/china/rss.xml
+  - id: guardian-environment
+    name: 卫报环境气候
+    url: https://www.theguardian.com/environment/rss
+    max_age_days: 2
+  # 路透社/美联社官方 RSS 已停服，改用 Google News 站点检索作为替代通道
+  - id: reuters-gn
+    name: 路透社(站点检索)
+    url: "https://news.google.com/rss/search?q=site:reuters.com+when:1d&hl=en-US&gl=US&ceid=US:en"
+  - id: ap-gn
+    name: 美联社(站点检索)
+    url: "https://news.google.com/rss/search?q=site:apnews.com+when:1d&hl=en-US&gl=US&ceid=US:en"
+
+  # ── 财经与市场 ───────────────────────────────────────────────
+  - id: bloomberg-markets
+    name: 彭博市场
+    url: https://feeds.bloomberg.com/markets/news.rss
+  - id: ft-world
+    name: 金融时报FT
+    url: https://www.ft.com/rss/home
+  - id: cnbc-world
+    name: CNBC全球财经
+    url: https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100727362
+  - id: wsj-markets
+    name: 华尔街日报市场
+    url: https://feeds.a.dj.com/rss/RSSMarketsMain.xml
+  - id: marketwatch-top
+    name: MarketWatch头条
+    url: https://feeds.content.dowjones.io/public/rss/mw_topstories
+  - id: marketwatch-pulse
+    name: MarketWatch市场异动
+    url: https://feeds.content.dowjones.io/public/rss/mw_marketpulse
+    max_age_days: 2
   - id: economist-finance
     name: 经济学人·金融
     url: https://www.economist.com/finance-and-economics/rss.xml
+    max_age_days: 4
+  - id: economist-china
+    name: 经济学人·中国
+    url: https://www.economist.com/china/rss.xml
+    max_age_days: 4
+  - id: nytimes-economy
+    name: 纽约时报经济
+    url: https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml
+
+  # ── 贵金属与大宗商品 ─────────────────────────────────────────
+  - id: investing-gold
+    name: Investing黄金
+    url: https://www.investing.com/rss/news_285.rss
+  - id: fxstreet-news
+    name: FXStreet外汇贵金属
+    url: https://www.fxstreet.com/rss/news
+    max_age_days: 2
+  - id: mining-com
+    name: Mining金属矿业
+    url: https://www.mining.com/feed/
+    max_age_days: 4
+
+  # ── 官方一级信源（政策/数据原文，预测基准） ───────────────────
+  - id: fed-press
+    name: 美联储公告
+    url: https://www.federalreserve.gov/feeds/press_all.xml
+    max_age_days: 7
+  - id: ecb-press
+    name: 欧洲央行公告
+    url: https://www.ecb.europa.eu/rss/press.html
+    max_age_days: 7
+  - id: eia-energy
+    name: 美国能源信息署
+    url: https://www.eia.gov/rss/todayinenergy.xml
+    max_age_days: 4
+
+  # ── 科技与产业 ───────────────────────────────────────────────
   - id: techcrunch
     name: TechCrunch
     url: https://techcrunch.com/feed/
   - id: theverge
     name: The Verge
     url: https://www.theverge.com/rss/index.xml
+  - id: arstechnica
+    name: Ars Technica
+    url: https://feeds.arstechnica.com/arstechnica/index
+  - id: mit-tech
+    name: MIT科技评论
+    url: https://www.technologyreview.com/feed/
+    max_age_days: 4
   - id: hacker-news
     name: Hacker News
     url: https://hnrss.org/frontpage
-  - id: 36kr
-    name: 36氪
-    url: https://36kr.com/feed
-  - id: huxiu
-    name: 虎嗅
-    url: https://www.huxiu.com/rss/0.xml
-  - id: investing-gold
-    name: Investing黄金
-    url: https://www.investing.com/rss/news_285.rss
-  - id: ruanyifeng
-    name: 阮一峰的网络日志
-    url: http://www.ruanyifeng.com/blog/atom.xml
-    enabled: false
   - id: solidot
     name: Solidot奇客
     url: https://www.solidot.org/index.rss
@@ -126,12 +169,34 @@ rss:
   - id: ifanr
     name: 爱范儿
     url: https://www.ifanr.com/feed
-  - id: reuters-business
-    name: 路透社商业
-    url: https://feeds.reuters.com/reuters/businessNews
-  - id: nytimes-economy
-    name: 纽约时报经济
-    url: https://rss.nytimes.com/services/xml/rss/nyt/Economy.xml
+  - id: qbitai
+    name: 量子位
+    url: https://www.qbitai.com/feed
+  - id: infoq-cn
+    name: InfoQ中文
+    url: https://www.infoq.cn/feed
+    max_age_days: 2
+
+  # ── 气候与能源转型 ───────────────────────────────────────────
+  - id: carbon-brief
+    name: Carbon Brief气候
+    url: https://www.carbonbrief.org/feed/
+    max_age_days: 4
+  - id: climate-inside
+    name: InsideClimate气候
+    url: https://insideclimatenews.org/feed/
+    max_age_days: 4
+
+  # ── 加密资产 ─────────────────────────────────────────────────
+  - id: coindesk
+    name: CoinDesk加密货币
+    url: https://www.coindesk.com/arc/outboundfeeds/rss/
+
+  # ── 已停用 ───────────────────────────────────────────────────
+  - id: ruanyifeng
+    name: 阮一峰的网络日志
+    url: http://www.ruanyifeng.com/blog/atom.xml
+    enabled: false
 report:
   mode: daily
   display_mode: keyword
@@ -230,7 +295,7 @@ ai_analysis:
   language: Chinese
   prompt_file: ai_analysis_prompt.txt
   mode: follow_report
-  max_news_for_analysis: 50
+  max_news_for_analysis: 60
   include_rss: true
   include_standalone: false
   include_rank_timeline: true

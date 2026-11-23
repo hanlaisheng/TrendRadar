@@ -28,8 +28,28 @@
 #   /赌博|博彩/       用 /.../ 包裹可以匹配多个词（用 | 分隔）
 
 [GLOBAL_FILTER]
-# 过滤标题党
+# 过滤标题党（中文）
 震惊
+炸裂
+刚刚
+速看
+盘点
+泪目
+笑死
+吃瓜
+# 过滤娱乐花边（中文）
+明星
+绯闻
+恋情
+离婚
+综艺
+网红
+八卦
+星座
+穿搭
+减肥
+# 过滤娱乐/八卦（英文，避免外媒软新闻混入）
+/celebrity|gossip|kardashian|box office|reality tv|red carpet/
 
 
 
@@ -256,3 +276,55 @@
 
 # 产业政策
 生产力
+
+
+# ═══════════════════════════════════════════════════════════════
+#                财经 / 宏观 / 地缘（预测趋势的输入基础）
+# ═══════════════════════════════════════════════════════════════
+# 说明：这部分是为了让高质量英文财经源（彭博/FT/WSJ/CNBC/MarketWatch/纽约时报）
+# 的标题也能被关键词匹配到。原配置只有中文词，导致这些源抓到了却被过滤掉。
+
+[贵金属黄金]
+/黄金|金价|伦敦金|现货黄金|上海金|\bgold\b|\bXAU\b|\bbullion\b|\bgold price\b|\bprecious metal/ => 黄金贵金属
+
+[白银铂族]
+/白银|银价|\bsilver\b|\bXAG\b|\bplatinum\b|\bpalladium\b/ => 白银铂族
+
+[美联储]
+/美联储|鲍威尔|联邦公开市场委员会|\bfed\b|\bfomc\b|\bfederal reserve\b|\bpowell\b|\bjerome powell\b/ => 美联储
+
+[利率与通胀]
+/降息|加息|利率决议|货币政策|通胀|通缩|\binflation\b|\bdeflation\b|\bCPI\b|\bPCE\b|\brate cut\b|\brate hike\b|\binterest rate\b|\bmonetary policy\b/ => 利率通胀
+
+[就业与经济数据]
+/非农|失业率|就业报告|经济衰退|软着陆|\bpayrolls\b|\bunemployment\b|\bjobs report\b|\bGDP\b|\brecession\b|\bsoft landing\b|\beconomic data\b/ => 经济数据
+
+[关税与制裁]
+/关税|贸易战|出口管制|实体清单|反制|制裁|\btariff\b|\btrade war\b|\bexport control\b|\bentity list\b|\bsanction\b|\bretaliat/ => 关税制裁
+
+[美元与汇率]
+/美元指数|汇率|人民币汇率|离岸人民币|\bDXY\b|\bdollar index\b|\byuan\b|\boffshore yuan\b|\bcurrenc/ => 美元汇率
+
+[原油与大宗商品]
+/原油|石油|布伦特|铜价|铁矿石|大宗商品|\bcrude\b|\bbrent\b|\bWTI\b|\bopec\b|\bcopper\b|\bcommodit|\bnatural gas\b/ => 原油大宗
+
+[债券与收益率]
+/国债收益率|美债|债券市场|收益率曲线|\btreasury yield\b|\bbond market\b|\bbond yield\b|\byield curve\b/ => 债市收益率
+
+[全球股市]
+/美股|港股|标普|纳斯达克|道琼斯|日经|A股大跌|A股大涨|\bS&P 500\b|\bnasdaq\b|\bdow jones\b|\bequities\b|\bstock market\b/ => 全球股市
+
+[气候与碳排放]
+/气候|碳排放|碳中和|全球变暖|极端天气|\bclimate\b|\bcarbon emission\b|\bnet zero\b|\bdecarboni|\bglobal warming\b|\bextreme weather\b/ => 气候碳排
+
+[电力储能与核能]
+/储能|电网|电力供应|核电|风电|拉闸限电|\benergy storage\b|\bpower grid\b|\bnuclear power\b|\bwind power\b|\bsolar power\b|\belectricity\b/ => 电力储能
+
+[中东海湾]
+/中东|伊朗|以色列|霍尔木兹|红海|沙特|\biran\b|\bisrael\b|\bhormuz\b|\bred sea\b|\bsaudi\b|\bmiddle east\b/ => 中东海湾
+
+[俄乌与欧洲安全]
+/俄乌|乌克兰|北约|\bukraine\b|\bnato\b|\bkremlin\b/ => 俄乌北约
+
+[芯片制造与半导体]
+/台积电|晶圆|先进制程|光刻机出口|\bTSMC\b|\bwafer\b|\blithography\b|\bsemiconductor\b|\bchipmaker\b|\badvanced node\b/ => 芯片制造
