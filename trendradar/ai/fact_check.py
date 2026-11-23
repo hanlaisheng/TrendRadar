@@ -134,6 +134,27 @@ def verify_analysis_result(
             out_lines.append(line)
         setattr(result, field, "\n".join(out_lines))
 
+    # ── 3. 研判结构：每条必须写清「未来N日」与概率/幅度，否则标注〔待核〕
+    #      提示词里的硬要求会随机失效，这里做代码级兜底，避免"感受式研判"混进简报。
+    outlook = getattr(result, "outlook_strategy", "") or ""
+    if outlook:
+        fixed: List[str] = []
+        shaped_bad = 0
+        for raw_line in outlook.split("\n"):
+            line = raw_line.strip()
+            if not line:
+                continue
+            has_horizon = "未来" in line or "季度初" in line
+            has_prob = bool(re.search(r"(概率|百分之|[0-9]+ ?[%％]|[一二三四五六七八九十]成)", line))
+            if not (has_horizon and has_prob):
+                shaped_bad += 1
+                if PENDING_MARK not in line:
+                    line = f"{line}{PENDING_MARK}"
+                    stats["rows_marked"] += 1
+            fixed.append(line)
+        setattr(result, "outlook_strategy", "\n".join(fixed))
+        stats["rows_shaped_out"] += shaped_bad
+
     if debug:
         print(
             "[校验] 数字回查：检验 {c} 个，无据 {u} 个；删除无据指标行 {d} 行，"
