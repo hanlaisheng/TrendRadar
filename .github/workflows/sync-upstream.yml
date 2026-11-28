@@ -86,6 +86,12 @@ jobs:
               "config/config.yaml"
               "config/ai_interests.txt"
               "config/ai_analysis_prompt.txt"
+              # 这两个是「推送时间是否漏推」的命门：
+              # timeline.yaml 里是 06:00-12:00 / 12:00-18:00 / 18:00-23:00 三个宽桶，
+              # frequency_words.txt 里是贵金属/美联储/气候等 15 组关键词。
+              # 一旦被上游版本覆盖，就会退回窄窗口 + 缺关键词的旧状态（即"又不推送了"）。
+              "config/timeline.yaml"
+              "config/frequency_words.txt"
               ".github/workflows/crawler.yml"
               ".github/workflows/auto-checkin.yml"
               # 以下是我们自己动过刀的代码文件：冲突时必须保留本地版本，
